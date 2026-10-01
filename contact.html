@@ -6,15 +6,27 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>
-    YosefiTechPng — Contact
-  </title>
+  <title>Contact — YosefiTechPng | Get a Free Website Quote</title>
 
-  <meta name="description" content="Get in touch with YosefiTechPng — request a website, ask a question, or chat with us on WhatsApp." />
+  <meta name="description" content="Get in touch with YosefiTechPng — request a free quote for your website or web app, or chat with us directly on WhatsApp." />
+
+  <link rel="canonical" href="https://yosefitechpng.com/contact.html" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Contact YosefiTechPng" />
+  <meta property="og:description" content="Request a free quote for your website or web app, or chat directly on WhatsApp." />
+  <meta property="og:url" content="https://yosefitechpng.com/contact.html" />
+  <meta property="og:image" content="https://yosefitechpng.com/favicon.png" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Contact YosefiTechPng" />
+  <meta name="twitter:description" content="Request a free quote for your website or web app, or chat directly on WhatsApp." />
+  <meta name="twitter:image" content="https://yosefitechpng.com/favicon.png" />
 
   <link rel="stylesheet" href="style.css" />
 
-    <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" href="favicon.png">
 
 </head>
 
@@ -42,8 +54,8 @@
           Home
         </a>
 
-        <a href="startup.html">
-          Startup
+        <a href="about.html">
+          About
         </a>
 
         <a href="services.html">
@@ -102,29 +114,42 @@
           Fill out the form and I'll respond within 24 hours.
         </p>
 
-        <form class="form-card" id="contactForm">
+        <form class="form-card" id="contactForm" novalidate>
 
-          <div class="form-row">
+          <div class="form-row" data-field="name">
 
             <label for="name">
-              Name
+              Name <span aria-hidden="true">*</span>
             </label>
 
             <input id="name" type="text" required placeholder="Your full name" />
+            <span class="form-error">Please enter your name.</span>
 
           </div>
 
-          <div class="form-row">
+          <div class="form-row" data-field="email">
 
             <label for="email">
-              Email
+              Email <span aria-hidden="true">*</span>
             </label>
 
             <input id="email" type="email" required placeholder="you@example.com" />
+            <span class="form-error">Please enter a valid email address.</span>
 
           </div>
 
-          <div class="form-row">
+          <div class="form-row" data-field="phone">
+
+            <label for="phone">
+              Phone / WhatsApp Number
+            </label>
+
+            <input id="phone" type="tel" placeholder="e.g. 675 7000 0000 (optional)" />
+            <span class="form-error">Please enter a valid phone number.</span>
+
+          </div>
+
+          <div class="form-row" data-field="business">
 
             <label for="business">
               Business Name
@@ -134,13 +159,51 @@
 
           </div>
 
-          <div class="form-row">
+          <div class="form-row" data-field="service">
+
+            <label for="service">
+              Service Needed <span aria-hidden="true">*</span>
+            </label>
+
+            <select id="service" required>
+              <option value="" disabled selected>Select a service…</option>
+              <option value="Website Development">Website Development</option>
+              <option value="Custom Web App / Dashboard">Custom Web App / Dashboard</option>
+              <option value="Landing Page">Landing Page</option>
+              <option value="Website Redesign">Website Redesign</option>
+              <option value="Maintenance &amp; Support">Maintenance &amp; Support</option>
+              <option value="Not sure yet">Not sure yet</option>
+            </select>
+            <span class="form-error">Please select a service.</span>
+
+          </div>
+
+          <div class="form-row" data-field="budget">
+
+            <label for="budget">
+              Budget Range (PGK)
+            </label>
+
+            <select id="budget">
+              <option value="" disabled selected>Select a budget range…</option>
+              <option value="Under K1,000">Under K1,000</option>
+              <option value="K1,000 - K2,000">K1,000 – K2,000</option>
+              <option value="K2,000 - K4,000">K2,000 – K4,000</option>
+              <option value="K4,000 - K6,000">K4,000 – K6,000</option>
+              <option value="K6,000+">K6,000+</option>
+              <option value="Not sure yet">Not sure yet</option>
+            </select>
+
+          </div>
+
+          <div class="form-row" data-field="details">
 
             <label for="details">
-              Project Details
+              Project Details <span aria-hidden="true">*</span>
             </label>
 
             <textarea id="details" required placeholder="Tell me about your project, goals, and timeline..."></textarea>
+            <span class="form-error">Please tell me a little about your project.</span>
 
           </div>
 
@@ -216,15 +279,15 @@
 
           <div class="footer-socials">
 
-            <a href="#" aria-label="Facebook">
+            <a href="#" aria-label="Facebook" data-social="facebook">
               📘
             </a>
 
-            <a href="#" aria-label="Instagram">
+            <a href="#" aria-label="Instagram" data-social="instagram">
               📷
             </a>
 
-            <a href="#" aria-label="LinkedIn">
+            <a href="#" aria-label="LinkedIn" data-social="linkedin">
               💼
             </a>
 
@@ -251,8 +314,8 @@
             </li>
 
             <li>
-              <a href="startup.html">
-                Startup
+              <a href="about.html">
+                About
               </a>
             </li>
 
