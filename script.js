@@ -16,6 +16,31 @@ window.YTP_WHATSAPP = {
 
 };
 
+// ============================================================
+// SOCIAL LINKS CONFIG — paste your profile URLs below.
+// Leave a value as '' to hide that icon everywhere automatically.
+// ============================================================
+window.YTP_SOCIALS = {
+
+  facebook: '',
+  instagram: '',
+  linkedin: '',
+
+};
+
+// ============================================================
+// CONTACT FORM CONFIG
+// leadsMode: 'whatsapp' opens WhatsApp with the form details prefilled.
+// Switch to 'api' (and set leadsEndpoint) once a POST /api/leads
+// backend exists — no other code changes needed.
+// ============================================================
+window.YTP_CONFIG = {
+
+  leadsMode: 'whatsapp',
+  leadsEndpoint: '/api/leads',
+
+};
+
 function buildWaUrl(customMessage) {
 
   const cfg = window.YTP_WHATSAPP || {};
@@ -74,6 +99,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   });
 
+  // Wire social icons (anything with [data-social]) — hide if no URL configured
+  const socials = window.YTP_SOCIALS || {};
+
+  document.querySelectorAll('[data-social]').forEach(el => {
+
+    const platform = el.getAttribute('data-social');
+
+    const url = (socials[platform] || '').trim();
+
+    if (url) {
+
+      el.setAttribute('href', url);
+
+      el.setAttribute('target', '_blank');
+
+      el.setAttribute('rel', 'noopener');
+
+      el.hidden = false;
+
+    } else {
+
+      el.hidden = true;
+
+    }
+
+  });
+
   // Wire all WhatsApp links (anything with [data-wa])
   document.querySelectorAll('[data-wa]').forEach(el => {
 
@@ -114,71 +166,139 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const contactForm = document.getElementById("contactForm");
 
-console.log("Form found:", contactForm);
-
 if (contactForm) {
 
-contactForm.addEventListener("submit", async function(e) {
+  // Pre-select the service dropdown from ?service= or ?plan= links
+  // (used by the Pricing and Services page CTA buttons).
+  const params = new URLSearchParams(window.location.search);
+  const preset = params.get('service') || params.get('plan');
+
+  if (preset) {
+
+    const serviceField = document.getElementById('service');
+    const normalized = preset.replace(/\+/g, ' ').trim().toLowerCase();
+
+    const match = Array.from(serviceField.options).find(opt =>
+      opt.value.toLowerCase().includes(normalized) || normalized.includes(opt.value.toLowerCase())
+    );
+
+    if (match) match.selected = true;
+
+  }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phonePattern = /^[\d+()\s-]{6,}$/;
+
+  function setInvalid(fieldName, isInvalid) {
+
+    const row = contactForm.querySelector(`[data-field="${fieldName}"]`);
+
+    if (row) row.classList.toggle('invalid', isInvalid);
+
+  }
+
+  function validateForm() {
+
+    let valid = true;
+
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const service = document.getElementById('service').value.trim();
+    const details = document.getElementById('details').value.trim();
+
+    const checks = [
+      ['name', name.length > 0],
+      ['email', emailPattern.test(email)],
+      ['phone', phone === '' || phonePattern.test(phone)],
+      ['service', service.length > 0],
+      ['details', details.length > 0],
+    ];
+
+    checks.forEach(([field, ok]) => {
+      setInvalid(field, !ok);
+      if (!ok) valid = false;
+    });
+
+    return valid;
+
+  }
+
+  contactForm.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('blur', validateForm);
+  });
+
+  contactForm.addEventListener("submit", async function(e) {
 
     e.preventDefault();
 
-    console.log("Sending form data...");
+    if (!validateForm()) return;
 
-
-    const formData = {
-
-        name: document.getElementById("name").value,
-
-        email: document.getElementById("email").value,
-
-        business: document.getElementById("business").value,
-
-        details: document.getElementById("details").value
-
+    const data = {
+      name: document.getElementById('name').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      business: document.getElementById('business').value.trim(),
+      service: document.getElementById('service').value,
+      budget: document.getElementById('budget').value,
+      details: document.getElementById('details').value.trim(),
     };
 
+    // Phase 1: 'whatsapp' or 'email' — pure client-side, no backend needed.
+    // Phase 2: set YTP_CONFIG.leadsMode = 'api' in script.js to POST to leadsEndpoint instead.
+    const mode = (window.YTP_CONFIG && window.YTP_CONFIG.leadsMode) || 'whatsapp';
 
-    try {
+    if (mode === 'api') {
 
-        const response = await fetch("/api/contact", {
+      const endpoint = (window.YTP_CONFIG && window.YTP_CONFIG.leadsEndpoint) || '/api/leads';
 
-            method: "POST",
+      try {
 
-            headers: {
-
-                "Content-Type": "application/json"
-
-            },
-
-            body: JSON.stringify(formData)
-
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
         });
 
-
-        console.log("API response:", response);
-
-
         if (response.ok) {
-
-            alert("Thanks! Your message has been sent.");
-
-            contactForm.reset();
-
+          alert("Thanks! Your message has been sent — I'll respond within 24 hours.");
+          contactForm.reset();
         } else {
-
-            alert("Something went wrong.");
-
+          alert("Something went wrong sending your message. Please try WhatsApp instead.");
         }
 
+      } catch (error) {
 
-    } catch(error) {
+        alert("Server error. Please try WhatsApp instead.");
 
-        console.log(error);
+      }
 
-        alert("Server error.");
+    } else if (mode === 'email') {
+
+      const subject = encodeURIComponent(`Website Inquiry from ${data.name}`);
+
+      const body = encodeURIComponent(
+        `Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone || '-'}\nBusiness: ${data.business || '-'}\nService: ${data.service}\nBudget: ${data.budget || '-'}\n\nMessage:\n${data.details}`
+      );
+
+      window.location.href = `mailto:immanuelklupi@gmail.com?subject=${subject}&body=${body}`;
+
+    } else {
+
+      const message =
+        `Hi, I'd like a quote for a website.\n\n` +
+        `Name: ${data.name}\n` +
+        `Email: ${data.email}\n` +
+        (data.phone ? `Phone: ${data.phone}\n` : '') +
+        (data.business ? `Business: ${data.business}\n` : '') +
+        `Service: ${data.service}\n` +
+        (data.budget ? `Budget: ${data.budget}\n` : '') +
+        `\nMessage:\n${data.details}`;
+
+      window.open(buildWaUrl(message), '_blank', 'noopener');
 
     }
 
-});
+  });
 
 }
